@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Result — NeuroScan AI</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg:       #0a0c12;
+      --surface:  #111420;
+      --surface2: #161928;
+      --border:   #1e2235;
+      --accent:   #00e5c8;
+      --accent2:  #a78bfa;
+      --text:     #e4e8f0;
+      --muted:    #6b7280;
+      --radius:   14px;
+    }
+    body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; min-height: 100vh; }
+
+    nav {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 32px; background: rgba(10,12,18,.9);
+      backdrop-filter: blur(10px); border-bottom: 1px solid var(--border);
+      position: sticky; top: 0; z-index: 100;
+    }
+    .nav-logo { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 1.05rem; }
+    .logo-dot { width: 10px; height: 10px; background: var(--accent); border-radius: 50%; animation: pulse 2s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+    .nav-badge {
+      background: linear-gradient(135deg, var(--accent2), var(--accent));
+      color: #000; font-size: .75rem; font-weight: 700;
+      padding: 5px 14px; border-radius: 20px;
+    }
+
+    .page { max-width: 820px; margin: 0 auto; padding: 40px 16px 60px; }
+
+    .result-header { text-align: center; margin-bottom: 36px; }
+    .result-header .tag {
+      font-size: .7rem; letter-spacing: .12em; text-transform: uppercase;
+      color: var(--accent); background: rgba(0,229,200,.08);
+      border: 1px solid rgba(0,229,200,.2); border-radius: 20px;
+      padding: 4px 14px; display: inline-block; margin-bottom: 12px;
+    }
+    .result-header h1 { font-size: 1.9rem; font-weight: 800; }
+
+    .card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 28px; margin-bottom: 20px;
+    }
+    .card-label {
+      font-size: .68rem; letter-spacing: .12em; color: var(--accent2);
+      text-transform: uppercase; font-weight: 700; margin-bottom: 16px;
+    }
+
+    /* Prediction block */
+    .pred-row { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
+    .mri-thumb { width: 140px; height: 140px; object-fit: cover; border-radius: 10px; border: 1px solid var(--border); flex-shrink: 0; }
+    .pred-info { flex: 1; min-width: 200px; }
+    .pred-badge {
+      display: inline-block; padding: 8px 20px; border-radius: 30px;
+      font-size: 1rem; font-weight: 700; margin-bottom: 10px;
+    }
+    .pred-badge.success  { background: rgba(46,204,113,.12); color: #2ECC71; border: 1px solid rgba(46,204,113,.3); }
+    .pred-badge.warning  { background: rgba(243,156,18,.12);  color: #F39C12; border: 1px solid rgba(243,156,18,.3); }
+    .pred-badge.danger   { background: rgba(231,76,60,.12);   color: #E74C3C; border: 1px solid rgba(231,76,60,.3); }
+    .pred-desc { color: var(--muted); font-size: .88rem; line-height: 1.6; margin-bottom: 12px; }
+    .conf-num { font-size: 2.2rem; font-weight: 800; color: var(--accent); }
+    .conf-label { color: var(--muted); font-size: .8rem; }
+
+    /* Prob bars */
+    .prob-row { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; font-size: .88rem; }
+    .prob-label { width: 160px; flex-shrink: 0; color: var(--text); }
+    .prob-track { flex: 1; background: var(--surface2); border-radius: 6px; height: 16px; overflow: hidden; }
+    .prob-fill   { height: 100%; border-radius: 6px; transition: width 1.2s cubic-bezier(.4,0,.2,1); }
+    .prob-pct    { width: 46px; text-align: right; font-weight: 600; font-size: .85rem; }
+
+    /* Images */
+    .img-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px,1fr)); gap: 16px; }
+    .img-block { text-align: center; }
+    .img-block img { width: 100%; border-radius: 10px; border: 1px solid var(--border); }
+    .img-cap { color: var(--muted); font-size: .78rem; margin-top: 6px; }
+
+    /* Disclaimer */
+    .disclaimer {
+      background: rgba(231,76,60,.06); border: 1px solid rgba(231,76,60,.2);
+      border-radius: 10px; padding: 14px 18px; font-size: .82rem; color: #f08080; line-height: 1.6;
+    }
+
+    .btn-back {
+      display: inline-flex; align-items: center; gap: 8px;
+      margin-top: 28px; padding: 12px 28px;
+      background: linear-gradient(135deg, var(--accent2), var(--accent));
+      color: #000; font-weight: 700; border-radius: 30px;
+      text-decoration: none; font-size: .95rem;
+      transition: transform .2s;
+    }
+    .btn-back:hover { transform: translateY(-2px); }
+
+    footer { border-top: 1px solid var(--border); padding: 22px; text-align: center; color: var(--muted); font-size: .8rem; }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo"><div class="logo-dot"></div> NeuroScan AI</div>
+  <div class="nav-badge">🔬 Result</div>
+</nav>
+
+<div class="page">
+
+  <div class="result-header">
+    <div class="tag">Analysis Complete</div>
+    <h1>MRI Prediction Result</h1>
+  </div>
+
+  <!-- Prediction -->
+  <div class="card">
+    <div class="card-label">Prediction</div>
+    <div class="pred-row">
+      <img src="/static/uploads/{{ filename }}" class="mri-thumb" alt="MRI"/>
+      <div class="pred-info">
+        <div class="pred-badge {{ badge }}">{{ icon }} {{ pred_class }}</div>
+        <p class="pred-desc">{{ desc }}</p>
+        <div class="conf-num">{{ confidence }}%</div>
+        <div class="conf-label">Confidence</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Probabilities -->
+  <div class="card">
+    <div class="card-label">Class Probabilities</div>
+    {% set fill_colors = ["#F39C12", "#E74C3C", "#2ECC71"] %}
+    {% set class_list  = ["Mild Dementia", "Moderate Dementia", "Non Demented"] %}
+    {% for cls in class_list %}
+    <div class="prob-row">
+      <div class="prob-label">{{ cls }}</div>
+      <div class="prob-track">
+        <div class="prob-fill"
+             style="width:{{ all_probs[cls] }}%; background:{{ fill_colors[loop.index0] }};"></div>
+      </div>
+      <div class="prob-pct" style="color:{{ fill_colors[loop.index0] }};">{{ all_probs[cls] }}%</div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- Confidence Chart -->
+  <div class="card">
+    <div class="card-label">Confidence Chart</div>
+    <div style="text-align:center;">
+      <img src="data:image/png;base64,{{ chart_b64 }}" style="max-width:600px;width:100%;border-radius:8px;" alt="Chart"/>
+    </div>
+  </div>
+
+  {% if gradcam_b64 %}
+  <!-- Grad-CAM -->
+  <div class="card">
+    <div class="card-label">Grad-CAM Visualisation</div>
+    <p style="color:var(--muted);font-size:.83rem;margin-bottom:14px;">
+      Highlighted regions show where the model focused its attention when making this prediction.
+    </p>
+    <div style="text-align:center;">
+      <img src="data:image/png;base64,{{ gradcam_b64 }}" style="max-width:680px;width:100%;border-radius:8px;" alt="Grad-CAM"/>
+    </div>
+  </div>
+  {% endif %}
+
+  
+
+  <div style="text-align:center;">
+    <a href="/" class="btn-back">← Analyse Another Scan</a>
+  </div>
+
+</div>
+
+<footer>NeuroScan AI &nbsp;·&nbsp; Alzheimer's MRI Classification &nbsp;·&nbsp; Educational Use Only</footer>
+</body>
+</html>
